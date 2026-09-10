@@ -2,6 +2,10 @@ import { NextResponse } from 'next/server';
 import { pool } from '@/db/pool';
 import { handleError } from '@/lib/errors';
 import { toRestaurant } from '@/lib/types';
+import { ValidationError } from '@/lib/errors';
+import { NotFoundError } from '@/lib/errors';
+import { validateRestaurantBody } from '@/app/api/restaurants/validation';
+
 
 type Params = { params: { id: string } };
 
@@ -11,6 +15,11 @@ type Params = { params: { id: string } };
  */
 export async function GET(_req: Request, { params }: Params) { //automatically destructures params
   try {
+    const id = Number(params.id);
+    if (!Number.isInteger(id) || id <= 0) {
+      throw new NotFoundError('Restaurant ID must be a positive integer');
+    }
+
     const { rows } = await pool.query(
       'SELECT * FROM restaurants WHERE id = $1',
       [params.id]
@@ -36,14 +45,14 @@ export async function GET(_req: Request, { params }: Params) { //automatically d
 export async function PUT(_req: Request, _ctx: Params) {
   try {
     const body = await _req.json(); 
-    const { name, cuisine, address, rating } = body;
+    const { name, cuisine, address, rating } = validateRestaurantBody(body);
     const { rows } = await pool.query( //updates data with id given in params
       'UPDATE restaurants SET name = $1, cuisine = $2, address = $3, rating = $4 WHERE id = $5 RETURNING *',
       [name, cuisine ?? null, address ?? null, rating ?? null, _ctx.params.id]
     );
 
     if(rows.length === 0) { //id doesn't match any row 
-      return NextResponse.json({ error: 'Restaurant not found' }, { status: 404 });
+      throw new NotFoundError('Restaurant not found'); 
     }
 
     return NextResponse.json(toRestaurant(rows[0]));
@@ -73,7 +82,7 @@ export async function DELETE(_req: Request, _ctx: Params) {
     );
 
     if(rows.length === 0) {
-      return NextResponse.json({ error: 'Restaurant not found' }, { status: 404 });
+      throw new NotFoundError('Restaurant not found'); 
     }
     return new Response(null, { status: 204 }); //no content so new response (cant pass json)
 
