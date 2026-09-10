@@ -9,7 +9,7 @@ type Params = { params: { id: string } };
  * GET /api/restaurants/:id
  * Returns a single restaurant, or 404 if it doesn't exist.
  */
-export async function GET(_req: Request, { params }: Params) {
+export async function GET(_req: Request, { params }: Params) { //automatically destructures params
   try {
     const { rows } = await pool.query(
       'SELECT * FROM restaurants WHERE id = $1',
@@ -34,7 +34,22 @@ export async function GET(_req: Request, { params }: Params) {
  * record (or 404 if it doesn't exist). Validate the body the same way POST does.
  */
 export async function PUT(_req: Request, _ctx: Params) {
-  return NextResponse.json({ error: 'Not implemented' }, { status: 501 });
+  try {
+    const body = await _req.json(); 
+    const { name, cuisine, address, rating } = body;
+    const { rows } = await pool.query( //updates data with id given in params
+      'UPDATE restaurants SET name = $1, cuisine = $2, address = $3, rating = $4 WHERE id = $5 RETURNING *',
+      [name, cuisine ?? null, address ?? null, rating ?? null, _ctx.params.id]
+    );
+
+    if(rows.length === 0) { //id doesn't match any row 
+      return NextResponse.json({ error: 'Restaurant not found' }, { status: 404 });
+    }
+
+    return NextResponse.json(toRestaurant(rows[0]));
+  } catch (err) {
+    return handleError(err);
+  }
 }
 
 /**
@@ -48,6 +63,21 @@ export async function PUT(_req: Request, _ctx: Params) {
  * restaurant's visits. Go read it. If you disagree with it, say so in your
  * write-up.
  */
+//automatically deletes all visits (so don't need delete from visits)
+//could keep past visits (what if u delete accidentally)
 export async function DELETE(_req: Request, _ctx: Params) {
-  return NextResponse.json({ error: 'Not implemented' }, { status: 501 });
+  try {
+    const { rows } = await pool.query(
+      'DELETE from restaurants WHERE id = $1 RETURNING id',
+      [_ctx.params.id]
+    );
+
+    if(rows.length === 0) {
+      return NextResponse.json({ error: 'Restaurant not found' }, { status: 404 });
+    }
+    return new Response(null, { status: 204 }); //no content so new response (cant pass json)
+
+  } catch (err) {
+    return handleError(err);
+  }
 }
