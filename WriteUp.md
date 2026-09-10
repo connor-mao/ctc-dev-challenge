@@ -1,64 +1,25 @@
 # Write-up
 
-> This is the skeleton - replace everything in blockquotes with your own words
-> and delete the prompts as you go. Aim for **~300 words** across the four
-> questions; the route reference below can be as long as it needs to be.
->
-> Write it like you're handing the work to a teammate. We'd rather read an
-> honest "I ran out of time on X and here's what I'd do" than a polished list of
-> accomplishments. **Submit this even if you didn't finish** - see CHALLENGE.md.
-
 ## 1. What did you build for Part B, and why that?
 
-> What made you pick it over everything else you could have built? This is the
-> question we care most about - the _why_ matters more than the _what_.
+> I ran out of time and didn't get to this part. If I could add a feature though, I'd add a picture upload feature (similar to Beli) so you can remember what dishes were served at the restaurant and their presentation. It'd also help with remembering the restaurant setting and overall vibe/formalness.
 
 ## 2. What did you decide, and what did you rule out?
 
-> Route shapes, data model, where the logic lives, what you deliberately didn't
-> do. Name a tradeoff you're not sure you got right.
+> The cascade of deleting visits after deleting a restaurant does make logical sense, but I think it'd be nice to keep those visits in memory in case you add the restaurant back - especially if the deletion was accidental. However, that would require somehow linking up the orphaned visits back to the restaurant when readded, which I honestly have no idea how to even start implementing.
 
 ## 3. Where did you cut corners?
 
-> What would you fix first with another day?
-
+> I defined the ConflictError class in errors.ts but never got to actually integrate  it, so I'd definitely implement that with more time.  
 ---
-
-## Part B: routes
-
-> Every endpoint you added, with its request and response shapes, so we can
-> exercise it without reverse-engineering your code. Add or remove rows as
-> needed; delete this section if your Part B added no routes.
-
-| Method and path | What it does | Success | Errors       |
-| --------------- | ------------ | ------- | ------------ |
-| `GET /api/...`  |              | `200` + | `404` if ... |
-| `POST /api/...` |              | `201` + | `400` on ... |
-
-**`POST /api/...`**
-
-```jsonc
-// request
-{ }
-
-// 201 response
-{ }
-```
 
 ## Schema changes
 
-> Any migrations you added (`002_*.sql`, ...), new tables or columns, and
-> anything a reviewer needs to run beyond `./setup.sh`. Write "none" if there
-> were none.
+> none
 
 ## How I verified this
 
-> How you checked your work - the happy paths _and_ the failures. `curl`
-> commands, a Postman collection, a scratch script, screenshots: whatever you
-> actually used. Paste the commands.
->
-> This is much faster for us to review than working it out ourselves, and it's
-> how you show you checked the edge cases.
+> I used the given curl commands to test Part A - all of them worked correctly with the correct error codes. 
 
 **Part A** - the contract table in CHALLENGE.md, every row including the error
 cases:
@@ -73,13 +34,8 @@ curl -i -X POST http://localhost:3000/api/restaurants \
   -d '{"name":"Out Of Range","rating":6}'              # 400
 ```
 
-**Part B** - the equivalent cases for what you built:
-
-```bash
-
-```
-
 ## Known issues / what I'd do next
 
-> Anything broken, unfinished, or that you know is wrong. Being upfront here
-> costs you nothing and tells us a lot.
+> I directly pushed A1 and A2 without creating a pull request because I only saw that instruction after. To be completely honest, most of the codebase was completely new to me so I spent a LONG (probably too much) time trying to comprehend how everything worked and figuring out how to even start. The struggle was worth it though, because it felt so rewarding when I actually started understanding parts of the codebase - it's somehow made me more excited to learn more about full stack development. 
+
+
