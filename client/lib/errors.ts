@@ -21,7 +21,44 @@ import { NextResponse } from 'next/server';
  * TODO (A3): avoid leaking internal error details in responses
  */
 export function handleError(err: unknown): NextResponse {
-  console.error('Unhandled API error:', err);
+  if (err instanceof ApiError) {
+    return NextResponse.json({error: err.message }, {status: err.status });
+  }
 
+  console.error('Unhandled API error:', err);
   return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
 }
+
+export class ApiError extends Error {
+  constructor(
+    public status: number,
+    message: string,
+  ) {
+    super(message);
+    this.name = 'ApiError';
+  }
+}
+
+//bad request - malformed request syntax, invalid request message framing, or deceptive request routing
+export class ValidationError extends ApiError {
+  constructor(message: string) {
+    super(400, message);
+    this.name = 'ValidationError';
+  }
+}
+
+export class NotFoundError extends ApiError {
+  constructor(message: string) {
+    super(404, message);
+    this.name = 'NotFoundError'
+  }
+}
+
+export class ConflictError extends ApiError {
+  constructor(message: string) {
+    super(409, message);
+    this.name = 'ConflictError'
+  }
+}
+
+

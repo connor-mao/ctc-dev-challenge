@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { pool } from '@/db/pool';
 import { handleError } from '@/lib/errors';
 import { toRestaurant } from '@/lib/types';
+import { ValidationError } from '@/lib/errors';
+import { validateRestaurantBody } from '@/app/api/restaurants/validation';
 
 /**
  * GET /api/restaurants
@@ -36,7 +38,7 @@ export async function GET() {
 export async function POST(_req: Request) {
   try{
     const body = await _req.json(); //reads request body, parses into JSON object
-    const { name, cuisine, address, rating } = body; //set variables from body
+    const { name, cuisine, address, rating } = validateRestaurantBody(body); //call validation to check input
     const { rows } = await pool.query( //query data, returns array of rows
       'INSERT INTO restaurants (name, cuisine, address, rating) VALUES ($1, $2, $3, $4) RETURNING *',
       [name, cuisine ?? null, address ?? null, rating ?? null] //sends null if undef 
